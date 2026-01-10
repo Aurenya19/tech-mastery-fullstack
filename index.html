@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tech Mastery - Ritika</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root { --primary: #6366f1; --success: #10b981; --warning: #f59e0b; --danger: #ef4444; }
+        body { font-family: 'Segoe UI', sans-serif; background: #f8f9fa; }
+        .login { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #667eea, #764ba2); }
+        .login-box { background: white; padding: 3rem; border-radius: 20px; text-align: center; max-width: 400px; width: 90%; box-shadow: 0 20px 60px rgba(0,0,0,0.3); }
+        .login-box i { font-size: 4rem; color: var(--primary); margin-bottom: 1rem; }
+        .login-box h1 { font-size: 2rem; margin-bottom: 0.5rem; }
+        .login-box p { color: #666; margin-bottom: 2rem; }
+        button { padding: 1rem 2rem; border: none; border-radius: 10px; font-size: 1rem; cursor: pointer; width: 100%; margin-top: 1rem; }
+        .btn-success { background: var(--success); color: white; }
+        .btn-success:hover { background: #059669; transform: translateY(-2px); }
+        input { width: 100%; padding: 1rem; border: 2px solid #ddd; border-radius: 10px; font-size: 1rem; margin-top: 1rem; }
+        .app { display: grid; grid-template-columns: 250px 1fr; grid-template-rows: 70px 1fr; min-height: 100vh; }
+        .navbar { grid-column: 1 / -1; background: white; border-bottom: 1px solid #ddd; padding: 0 2rem; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        .nav-brand { display: flex; align-items: center; gap: 0.5rem; font-size: 1.5rem; font-weight: bold; color: var(--primary); }
+        .sidebar { background: white; border-right: 1px solid #ddd; padding: 1.5rem; overflow-y: auto; }
+        .sidebar ul { list-style: none; }
+        .sidebar li { padding: 1rem; margin-bottom: 0.5rem; border-radius: 10px; cursor: pointer; display: flex; align-items: center; gap: 0.75rem; }
+        .sidebar li:hover { background: #f0f0f0; }
+        .sidebar li.active { background: var(--primary); color: white; }
+        .content { padding: 2rem; overflow-y: auto; }
+        .card { background: white; border-radius: 15px; padding: 1.5rem; margin-bottom: 1.5rem; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; }
+        .hidden { display: none; }
+        textarea { width: 100%; min-height: 300px; padding: 1rem; font-family: monospace; background: #1e1e1e; color: #d4d4d4; border: none; border-radius: 10px; margin: 1rem 0; }
+        .output { background: #1e1e1e; color: #d4d4d4; padding: 1rem; border-radius: 10px; min-height: 100px; font-family: monospace; white-space: pre-wrap; }
+        @media (max-width: 768px) { .app { grid-template-columns: 1fr; } .sidebar { display: none; } }
+    </style>
+</head>
+<body>
+    <div id="app"></div>
+    <script>
+        let user = JSON.parse(localStorage.getItem('user')) || null;
+        let data = JSON.parse(localStorage.getItem('data')) || { points: 0, challenges: 0, streak: 0 };
+
+        function init() { user ? showApp() : showLogin(); }
+
+        function showLogin() {
+            document.getElementById('app').innerHTML = `
+                <div class="login">
+                    <div class="login-box">
+                        <i class="fas fa-brain"></i>
+                        <h1>Tech Mastery</h1>
+                        <p>Become a Tech Genius 🚀</p>
+                        <input type="text" id="name" placeholder="Enter your name (e.g., Ritika)">
+                        <button class="btn-success" onclick="login()">Start Learning</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function login() {
+            const name = document.getElementById('name').value.trim();
+            if (name) {
+                user = { name };
+                localStorage.setItem('user', JSON.stringify(user));
+                showApp();
+            } else alert('Please enter your name!');
+        }
+
+        function showApp() {
+            document.getElementById('app').innerHTML = `
+                <div class="app">
+                    <nav class="navbar">
+                        <div class="nav-brand"><i class="fas fa-brain"></i> Tech Mastery</div>
+                        <div>
+                            <span style="margin-right: 1rem;">👋 ${user.name}</span>
+                            <button onclick="logout()" style="padding: 0.5rem 1rem; width: auto; background: var(--danger); color: white;">Logout</button>
+                        </div>
+                    </nav>
+                    <aside class="sidebar">
+                        <ul>
+                            <li class="active" onclick="show('dash')"><i class="fas fa-home"></i> Dashboard</li>
+                            <li onclick="show('fields')"><i class="fas fa-code"></i> Tech Fields (8)</li>
+                            <li onclick="show('challenges')"><i class="fas fa-trophy"></i> Challenges (500+)</li>
+                            <li onclick="show('playground')"><i class="fas fa-play"></i> Code Playground</li>
+                            <li onclick="show('genius')"><i class="fas fa-brain"></i> Genius Exercises</li>
+                            <li onclick="show('missions')"><i class="fas fa-rocket"></i> Missions</li>
+                            <li onclick="show('hackathons')"><i class="fas fa-laptop-code"></i> Hackathons</li>
+                            <li onclick="show('playlist')"><i class="fas fa-music"></i> Playlist (60+)</li>
+                            <li onclick="show('news')"><i class="fas fa-newspaper"></i> Tech News</li>
+                            <li onclick="show('achievements')"><i class="fas fa-medal"></i> Achievements</li>
+                            <li onclick="show('cert')"><i class="fas fa-certificate"></i> Certificate</li>
+                        </ul>
+                    </aside>
+                    <main class="content" id="content">${dash()}</main>
+                </div>
+            `;
+        }
+
+        function logout() { localStorage.clear(); user = null; showLogin(); }
+
+        function show(s) {
+            document.querySelectorAll('.sidebar li').forEach(li => li.classList.remove('active'));
+            event.target.closest('li').classList.add('active');
+            const c = document.getElementById('content');
+            if (s === 'dash') c.innerHTML = dash();
+            else if (s === 'fields') c.innerHTML = fields();
+            else if (s === 'challenges') c.innerHTML = challenges();
+            else if (s === 'playground') c.innerHTML = playground();
+            else if (s === 'genius') c.innerHTML = '<h1>Genius Exercises 🧠</h1><div class="card"><h3>5 Expert Challenges</h3><p>System Design, AI, Security, Blockchain, Game Dev</p></div>';
+            else if (s === 'missions') c.innerHTML = '<h1>Missions 🚀</h1><div class="card"><h3>5 Projects</h3><p>Full Stack, AI, Mobile, DevOps, Blockchain</p></div>';
+            else if (s === 'hackathons') c.innerHTML = '<h1>Hackathons 🏆</h1><div class="card"><h3>5 Competitions</h3><p>Win up to $15,000!</p></div>';
+            else if (s === 'playlist') c.innerHTML = '<h1>Playlist 🎵</h1><div class="card"><h3>60+ Songs</h3><p>Perfect coding music</p></div>';
+            else if (s === 'news') c.innerHTML = '<h1>Tech News 📰</h1><div class="card"><h3>Latest Updates</h3><p>AI, Quantum, Web3...</p></div>';
+            else if (s === 'achievements') c.innerHTML = '<h1>Achievements 🏅</h1><div class="card"><h3>10 Badges</h3><p>Unlock as you progress</p></div>';
+            else if (s === 'cert') c.innerHTML = `<h1>Certificate 🎓</h1><div class="card" style="text-align: center; padding: 3rem; border: 3px solid var(--primary);"><i class="fas fa-certificate" style="font-size: 4rem; color: var(--primary);"></i><h2 style="margin: 2rem 0;">Certificate of Excellence</h2><h1 style="color: var(--primary); font-size: 3rem;">${user.name}</h1><p style="font-size: 1.2rem; margin: 2rem 0;">Tech Mastery Program</p><p>Points: ${data.points} | Challenges: ${data.challenges}/500</p></div>`;
+        }
+
+        function dash() {
+            return `
+                <h1>Welcome, ${user.name}! 🚀</h1>
+                <p style="margin-bottom: 2rem; color: #666;">Your journey to becoming a tech genius...</p>
+                <div class="grid">
+                    <div class="card"><h3>Total Points</h3><h2 style="font-size: 3rem; color: var(--primary);">${data.points}</h2></div>
+                    <div class="card"><h3>Challenges</h3><h2 style="font-size: 3rem; color: var(--success);">${data.challenges}/500</h2></div>
+                    <div class="card"><h3>Streak</h3><h2 style="font-size: 3rem; color: var(--danger);">${data.streak} days</h2></div>
+                </div>
+                <div class="card">
+                    <h3>Quick Start</h3>
+                    <div class="grid" style="margin-top: 1rem;">
+                        <button class="btn-success" onclick="show('fields')">📚 Tech Fields</button>
+                        <button class="btn-success" onclick="show('challenges')">🎯 Challenges</button>
+                        <button class="btn-success" onclick="show('playground')">💻 Code Now</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function fields() {
+            const f = [
+                { n: 'Web Development', i: 'fa-globe', d: 'HTML, CSS, JS, React, Node' },
+                { n: 'Data Science & AI', i: 'fa-robot', d: 'Python, ML, TensorFlow' },
+                { n: 'Mobile Dev', i: 'fa-mobile-alt', d: 'React Native, Flutter' },
+                { n: 'Cloud & DevOps', i: 'fa-cloud', d: 'AWS, Docker, Kubernetes' },
+                { n: 'Cybersecurity', i: 'fa-shield-alt', d: 'Ethical Hacking' },
+                { n: 'Blockchain', i: 'fa-link', d: 'Solidity, Smart Contracts' },
+                { n: 'Game Dev', i: 'fa-gamepad', d: 'Unity, Unreal Engine' },
+                { n: 'UI/UX Design', i: 'fa-palette', d: 'Figma, Design' }
+            ];
+            return `<h1>8 Tech Fields 🎯</h1><div class="grid">${f.map(x => `<div class="card"><i class="fas ${x.i}" style="font-size: 2rem; color: var(--primary); margin-bottom: 1rem;"></i><h3>${x.n}</h3><p style="color: #666; margin: 1rem 0;">${x.d}</p><button class="btn-success" style="width: 100%;">Start</button></div>`).join('')}</div>`;
+        }
+
+        function challenges() {
+            return `
+                <h1>500+ Challenges 💪</h1>
+                <div class="card"><h3>Beginner (150)</h3><p>10 points each</p><button class="btn-success" onclick="done(10)">Start</button></div>
+                <div class="card"><h3>Intermediate (200)</h3><p>25 points each</p><button class="btn-success" onclick="done(25)">Start</button></div>
+                <div class="card"><h3>Advanced (150)</h3><p>50 points each</p><button class="btn-success" onclick="done(50)">Start</button></div>
+            `;
+        }
+
+        function done(p) {
+            data.points += p;
+            data.challenges++;
+            if (data.challenges % 10 === 0) data.streak++;
+            localStorage.setItem('data', JSON.stringify(data));
+            alert(`🎉 +${p} points!\\n\\nTotal: ${data.points} points\\nChallenges: ${data.challenges}/500`);
+            show('dash');
+        }
+
+        function playground() {
+            return `
+                <h1>Code Playground 💻</h1>
+                <div class="card">
+                    <h3>JavaScript Editor</h3>
+                    <textarea id="code">// Write your code
+console.log('Hello, ${user.name}!');
+
+function fib(n) {
+  if (n <= 1) return n;
+  return fib(n-1) + fib(n-2);
+}
+
+console.log('Fib(10):', fib(10));</textarea>
+                    <button class="btn-success" onclick="run()" style="width: 100%;">▶️ Run Code</button>
+                    <h4 style="margin-top: 1rem;">Output:</h4>
+                    <div class="output" id="out">Click Run to see output...</div>
+                </div>
+            `;
+        }
+
+        function run() {
+            const code = document.getElementById('code').value;
+            const out = document.getElementById('out');
+            try {
+                let logs = [];
+                const og = console.log;
+                console.log = (...a) => { logs.push(a.join(' ')); og(...a); };
+                eval(code);
+                console.log = og;
+                out.textContent = logs.join('\\n') || 'Done!';
+            } catch (e) {
+                out.textContent = 'Error: ' + e.message;
+            }
+        }
+
+        init();
+    </script>
+</body>
+</html>
