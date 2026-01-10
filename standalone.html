@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tech Mastery - Ritika's Platform</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --primary: #6366f1; --success: #10b981; --warning: #f59e0b;
+            --danger: #ef4444; --bg: #ffffff; --text: #1e293b;
+            --border: #e2e8f0; --light: #f8f9fa;
+        }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--light); color: var(--text); }
+        .login-screen { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #667eea, #764ba2); }
+        .login-box { background: white; padding: 3rem; border-radius: 20px; text-align: center; max-width: 400px; width: 90%; box-shadow: 0 20px 60px rgba(0,0,0,0.3); }
+        .login-box i { font-size: 4rem; color: var(--primary); margin-bottom: 1rem; }
+        .login-box h1 { font-size: 2rem; margin-bottom: 0.5rem; }
+        .login-box p { color: #666; margin-bottom: 2rem; }
+        button { padding: 1rem 2rem; border: none; border-radius: 10px; font-size: 1rem; cursor: pointer; transition: all 0.3s ease; }
+        .btn-primary { background: var(--primary); color: white; width: 100%; }
+        .btn-success { background: var(--success); color: white; width: 100%; }
+        .btn-primary:hover { background: #5558e3; transform: translateY(-2px); }
+        input { width: 100%; padding: 1rem; border: 2px solid var(--border); border-radius: 10px; font-size: 1rem; margin: 1rem 0; }
+        .app { display: grid; grid-template-columns: 250px 1fr; grid-template-rows: 70px 1fr; min-height: 100vh; }
+        .navbar { grid-column: 1 / -1; background: white; border-bottom: 1px solid var(--border); padding: 0 2rem; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        .nav-brand { display: flex; align-items: center; gap: 0.5rem; font-size: 1.5rem; font-weight: bold; color: var(--primary); }
+        .sidebar { background: white; border-right: 1px solid var(--border); padding: 1.5rem; overflow-y: auto; }
+        .sidebar ul { list-style: none; }
+        .sidebar li { padding: 1rem; margin-bottom: 0.5rem; border-radius: 10px; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; gap: 0.75rem; }
+        .sidebar li:hover { background: var(--light); }
+        .sidebar li.active { background: var(--primary); color: white; }
+        .content { padding: 2rem; overflow-y: auto; }
+        .card { background: white; border-radius: 15px; padding: 1.5rem; margin-bottom: 1.5rem; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; }
+        .hidden { display: none; }
+        textarea { width: 100%; min-height: 300px; padding: 1rem; font-family: 'Courier New', monospace; background: #1e1e1e; color: #d4d4d4; border: none; border-radius: 10px; margin: 1rem 0; resize: vertical; }
+        .output { background: #1e1e1e; color: #d4d4d4; padding: 1rem; border-radius: 10px; min-height: 100px; font-family: 'Courier New', monospace; white-space: pre-wrap; }
+        @media (max-width: 768px) { .app { grid-template-columns: 1fr; } .sidebar { display: none; } }
+    </style>
+</head>
+<body>
+    <div id="app"></div>
+    <script>
+        let user = JSON.parse(localStorage.getItem('techUser')) || null;
+        let progress = JSON.parse(localStorage.getItem('techProgress')) || { points: 0, challenges: 0, streak: 0 };
+
+        function init() {
+            user ? showApp() : showLogin();
+        }
+
+        function showLogin() {
+            document.getElementById('app').innerHTML = `
+                <div class="login-screen">
+                    <div class="login-box">
+                        <i class="fas fa-brain"></i>
+                        <h1>Tech Mastery</h1>
+                        <p>Your Journey to Becoming a Tech Genius</p>
+                        <input type="text" id="nick" placeholder="Enter your nickname" maxlength="20">
+                        <button class="btn-success" onclick="login()">Start Learning 🚀</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function login() {
+            const nickname = document.getElementById('nick').value.trim();
+            if (nickname) {
+                user = { nickname };
+                localStorage.setItem('techUser', JSON.stringify(user));
+                showApp();
+            } else {
+                alert('Please enter a nickname!');
+            }
+        }
+
+        function showApp() {
+            document.getElementById('app').innerHTML = `
+                <div class="app">
+                    <nav class="navbar">
+                        <div class="nav-brand"><i class="fas fa-brain"></i> <span>Tech Mastery</span></div>
+                        <div>
+                            <span style="margin-right: 1rem;">👋 ${user.nickname}</span>
+                            <button onclick="logout()" style="padding: 0.5rem 1rem; width: auto;"><i class="fas fa-sign-out-alt"></i></button>
+                        </div>
+                    </nav>
+                    <aside class="sidebar">
+                        <ul>
+                            <li class="active" onclick="showSection('dashboard')"><i class="fas fa-home"></i> Dashboard</li>
+                            <li onclick="showSection('fields')"><i class="fas fa-code"></i> Tech Fields (8)</li>
+                            <li onclick="showSection('challenges')"><i class="fas fa-trophy"></i> Challenges (500+)</li>
+                            <li onclick="showSection('playground')"><i class="fas fa-play"></i> Code Playground</li>
+                            <li onclick="showSection('genius')"><i class="fas fa-brain"></i> Genius Exercises</li>
+                            <li onclick="showSection('missions')"><i class="fas fa-rocket"></i> Missions</li>
+                            <li onclick="showSection('hackathons')"><i class="fas fa-laptop-code"></i> Hackathons</li>
+                            <li onclick="showSection('playlist')"><i class="fas fa-music"></i> Playlist (60+)</li>
+                            <li onclick="showSection('news')"><i class="fas fa-newspaper"></i> Tech News</li>
+                            <li onclick="showSection('achievements')"><i class="fas fa-medal"></i> Achievements</li>
+                            <li onclick="showSection('certificate')"><i class="fas fa-certificate"></i> Certificate</li>
+                        </ul>
+                    </aside>
+                    <main class="content" id="content">${getDashboard()}</main>
+                </div>
+            `;
+        }
+
+        function logout() {
+            localStorage.clear();
+            user = null;
+            showLogin();
+        }
+
+        function showSection(section) {
+            document.querySelectorAll('.sidebar li').forEach(li => li.classList.remove('active'));
+            event.target.closest('li').classList.add('active');
+            const content = document.getElementById('content');
+            
+            if (section === 'dashboard') content.innerHTML = getDashboard();
+            else if (section === 'fields') content.innerHTML = getFields();
+            else if (section === 'challenges') content.innerHTML = getChallenges();
+            else if (section === 'playground') content.innerHTML = getPlayground();
+            else if (section === 'genius') content.innerHTML = '<h1>Genius Exercises 🧠</h1><div class="card"><h3>5 Expert Challenges</h3><p>System Design, AI, Security, Blockchain, Game Dev</p></div>';
+            else if (section === 'missions') content.innerHTML = '<h1>Epic Missions 🚀</h1><div class="card"><h3>5 Long-term Projects</h3><p>Full Stack, AI, Mobile, DevOps, Blockchain</p></div>';
+            else if (section === 'hackathons') content.innerHTML = '<h1>Hackathons 🏆</h1><div class="card"><h3>5 Competitions</h3><p>Win prizes up to $15,000!</p></div>';
+            else if (section === 'playlist') content.innerHTML = '<h1>Tech Playlist 🎵</h1><div class="card"><h3>60+ Coding Songs</h3><p>Perfect music for coding</p></div>';
+            else if (section === 'news') content.innerHTML = '<h1>Tech News 📰</h1><div class="card"><h3>Latest Updates</h3><p>AI, Quantum, Web3, and more...</p></div>';
+            else if (section === 'achievements') content.innerHTML = '<h1>Achievements 🏅</h1><div class="card"><h3>10 Badges</h3><p>Unlock as you progress</p></div>';
+            else if (section === 'certificate') content.innerHTML = `<h1>Certificate 🎓</h1><div class="card" style="text-align: center; padding: 3rem;"><i class="fas fa-certificate" style="font-size: 4rem; color: var(--primary);"></i><h2 style="margin: 2rem 0;">Certificate of Excellence</h2><h1 style="color: var(--primary);">${user.nickname}</h1><p style="margin-top: 2rem;">Tech Mastery Program</p></div>`;
+        }
+
+        function getDashboard() {
+            return `
+                <h1>Welcome back, ${user.nickname}! 🚀</h1>
+                <p style="margin-bottom: 2rem; color: #64748b;">Your journey to becoming a tech genius continues...</p>
+                <div class="grid">
+                    <div class="card"><h3>Total Points</h3><h2 style="font-size: 3rem; color: var(--primary);">${progress.points}</h2></div>
+                    <div class="card"><h3>Challenges</h3><h2 style="font-size: 3rem; color: var(--success);">${progress.challenges}/500</h2></div>
+                    <div class="card"><h3>Streak</h3><h2 style="font-size: 3rem; color: var(--danger);">${progress.streak} days</h2></div>
+                </div>
+                <div class="card">
+                    <h3>Quick Start</h3>
+                    <div class="grid" style="margin-top: 1rem;">
+                        <button class="btn-primary" onclick="showSection('fields')">📚 Explore Fields</button>
+                        <button class="btn-success" onclick="showSection('challenges')">🎯 Challenges</button>
+                        <button class="btn-primary" onclick="showSection('playground')">💻 Code Now</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function getFields() {
+            const fields = [
+                { name: 'Web Development', icon: 'fa-globe', desc: 'HTML, CSS, JavaScript, React, Node.js' },
+                { name: 'Data Science & AI', icon: 'fa-robot', desc: 'Python, ML, Deep Learning, TensorFlow' },
+                { name: 'Mobile Development', icon: 'fa-mobile-alt', desc: 'React Native, Flutter, iOS, Android' },
+                { name: 'Cloud & DevOps', icon: 'fa-cloud', desc: 'AWS, Docker, Kubernetes, CI/CD' },
+                { name: 'Cybersecurity', icon: 'fa-shield-alt', desc: 'Ethical Hacking, Penetration Testing' },
+                { name: 'Blockchain & Web3', icon: 'fa-link', desc: 'Solidity, Smart Contracts, DeFi' },
+                { name: 'Game Development', icon: 'fa-gamepad', desc: 'Unity, Unreal Engine, Game Design' },
+                { name: 'UI/UX Design', icon: 'fa-palette', desc: 'Figma, Design Principles, Prototyping' }
+            ];
+            return `<h1>Master 8 Tech Fields 🎯</h1><div class="grid">${fields.map(f => `<div class="card"><i class="fas ${f.icon}" style="font-size: 2rem; color: var(--primary); margin-bottom: 1rem;"></i><h3>${f.name}</h3><p style="color: #64748b; margin: 1rem 0;">${f.desc}</p><button class="btn-success" style="width: 100%;">Start Learning</button></div>`).join('')}</div>`;
+        }
+
+        function getChallenges() {
+            return `
+                <h1>500+ Coding Challenges 💪</h1>
+                <div class="card"><h3>Beginner (150)</h3><p>10 points each</p><button class="btn-success" onclick="completeChallenge(10)">Start</button></div>
+                <div class="card"><h3>Intermediate (200)</h3><p>25 points each</p><button class="btn-success" onclick="completeChallenge(25)">Start</button></div>
+                <div class="card"><h3>Advanced (150)</h3><p>50 points each</p><button class="btn-success" onclick="completeChallenge(50)">Start</button></div>
+            `;
+        }
+
+        function completeChallenge(points) {
+            progress.points += points;
+            progress.challenges++;
+            localStorage.setItem('techProgress', JSON.stringify(progress));
+            alert(`Challenge completed! +${points} points 🎉`);
+            showSection('dashboard');
+        }
+
+        function getPlayground() {
+            return `
+                <h1>Code Playground 💻</h1>
+                <div class="card">
+                    <h3>JavaScript Editor</h3>
+                    <textarea id="code">// Write your code here
+console.log('Hello, Tech Genius!');
+
+function fibonacci(n) {
+  if (n <= 1) return n;
+  return fibonacci(n - 1) + fibonacci(n - 2);
+}
+
+console.log('Fibonacci(10):', fibonacci(10));</textarea>
+                    <button class="btn-success" onclick="runCode()">▶️ Run Code</button>
+                    <div class="output" id="output">Output will appear here...</div>
+                </div>
+            `;
+        }
+
+        function runCode() {
+            const code = document.getElementById('code').value;
+            const output = document.getElementById('output');
+            try {
+                let logs = [];
+                const originalLog = console.log;
+                console.log = (...args) => { logs.push(args.join(' ')); originalLog(...args); };
+                eval(code);
+                console.log = originalLog;
+                output.textContent = logs.join('\\n') || 'Code executed!';
+            } catch (error) {
+                output.textContent = 'Error: ' + error.message;
+            }
+        }
+
+        init();
+    </script>
+</body>
+</html>
